@@ -8,6 +8,15 @@ cat sample |while read id; do STAR --runThreadN $thread --sjdbGTFfile $gtf --out
 
 cat sample1|while read id
 do
+
+bed=/home/guanguiwen/data3/reference/human/hg19/riboseq/start_codon.bed
+
+script=/home/guanguiwen/data1/GSE135860/clean1/Ribowave-master/scripts/
+
+gtf=/home/guanguiwen/data3/reference/human/hg19/riboseq/exons.gtf
+
+genome_size=/home/guanguiwen/data3/reference/human/hg19/riboseq/STATindex/hg19_hbv.fa.fai
+
 samtools view -H ${id}Aligned.out.bam > header.sam
 
 samtools view -@ 20 ${id}Aligned.out.bam | rg -j 20 -w NH:i:1 | cat header.sam - >${id}.uniq.sam
@@ -18,5 +27,7 @@ samtools index ${id}.uniq.sort.bam
 
 read_distribution.py -r hg19_RefSeq.bed12 -i ${id}.uniq.sort.bam >  $id.read_distribution.log
 
-./Ribowave-master/scripts/P-site_determination.sh -i ${id}.uniq.sort.bam -S /home/guanguiwen/data3/reference/human/hg19/riboseq/start_codon.bed -o ${id} -n test -s ./Ribowave-master/scripts
+./Ribowave-master/scripts/P-site_determination.sh -i ${id}.uniq.sort.bam -S $bed -o ${id} -n $id -s $script
 done
+
+$script/create_track_Ribo.sh -i $id.uniq.sort.bam -G $gtf -g $genome_size -P $id/P-site/$id.psite1nt.txt -o $id -n $id -s $script
